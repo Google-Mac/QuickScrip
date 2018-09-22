@@ -21801,7 +21801,7 @@ var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _SearchPortal = __webpack_require__(24);
+var _SearchPortal = __webpack_require__(21);
 
 var _SearchPortal2 = _interopRequireDefault(_SearchPortal);
 
@@ -21839,10 +21839,7 @@ var App = function (_React$Component) {
 exports.default = App;
 
 /***/ }),
-/* 21 */,
-/* 22 */,
-/* 23 */,
-/* 24 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21858,15 +21855,19 @@ var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _SearchBar = __webpack_require__(25);
+var _SearchBar = __webpack_require__(22);
 
 var _SearchBar2 = _interopRequireDefault(_SearchBar);
 
-var _SearchResultsList = __webpack_require__(27);
+var _SearchResultsList = __webpack_require__(23);
 
 var _SearchResultsList2 = _interopRequireDefault(_SearchResultsList);
 
-var _fuse = __webpack_require__(29);
+var _DataCompiler = __webpack_require__(27);
+
+var _DataCompiler2 = _interopRequireDefault(_DataCompiler);
+
+var _fuse = __webpack_require__(25);
 
 var _fuse2 = _interopRequireDefault(_fuse);
 
@@ -21892,6 +21893,8 @@ var SearchPortal = function (_React$Component) {
             searchResults: []
         };
 
+        _this.searchUpdateInterval = null;
+
         _this.onSearchUpdate = _this.onSearchUpdate.bind(_this);
         _this.goToClickedResult = _this.goToClickedResult.bind(_this);
         return _this;
@@ -21900,57 +21903,7 @@ var SearchPortal = function (_React$Component) {
     _createClass(SearchPortal, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var scriptureData = [{
-                chapter: 1,
-                heading: "My first chapter heading",
-                book: "John",
-                volume: "New Testament"
-            }, {
-                chapter: 2,
-                heading: "My second chapter heading",
-                book: "John",
-                volume: "New Testament"
-            }, {
-                chapter: 3,
-                heading: "My third chapter heading",
-                book: "John",
-                volume: "New Testament"
-            }, {
-                chapter: 4,
-                heading: "My fourth chapter heading",
-                book: "John",
-                volume: "New Testament"
-            }, {
-                chapter: 5,
-                heading: "My fifth chapter heading",
-                book: "John",
-                volume: "New Testament"
-            }, {
-                chapter: 1,
-                heading: "My first chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            }, {
-                chapter: 2,
-                heading: "My second chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            }, {
-                chapter: 3,
-                heading: "My third chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            }, {
-                chapter: 4,
-                heading: "My fourth chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            }, {
-                chapter: 10,
-                heading: "My tenth chapter heading",
-                book: "Nephi",
-                volume: "Book of Mormon"
-            }];
+            var scriptureData = new _DataCompiler2.default().data;
 
             this.setState({ scriptureData: scriptureData });
 
@@ -21974,11 +21927,15 @@ var SearchPortal = function (_React$Component) {
     }, {
         key: 'onSearchUpdate',
         value: function onSearchUpdate(searchValue) {
-            var results = this.getResults(searchValue);
+            var _this2 = this;
 
-            console.log(results);
+            this.setState({ searchValue: searchValue });
 
-            this.setState({ searchValue: searchValue, searchResults: results });
+            this.searchUpdateInterval = setTimeout(function () {
+
+                var searchResults = _this2.getResults(searchValue);
+                _this2.setState({ searchResults: searchResults });
+            }, 1000);
         }
     }, {
         key: 'getResults',
@@ -21997,11 +21954,12 @@ var SearchPortal = function (_React$Component) {
     }, {
         key: 'buildLibraryLink',
         value: function buildLibraryLink(result) {
-            var volumeAlias = 'bofm';
-            var bookAlias = '1-ne';
+            var volumeAlias = result.volume || 'bofm';
+            var bookAlias = result.book || '1-ne';
             var chapter = result.chapter || 1;
+            var verse = result.verse || 1;
 
-            return 'gospellibrary://content/scriptures/' + volumeAlias + '/' + bookAlias + '/' + chapter + '.1?lang=eng';
+            return 'gospellibrary://content/scriptures/' + volumeAlias + '/' + bookAlias + '/' + chapter + '.' + verse + '?lang=eng';
         }
     }, {
         key: 'render',
@@ -22026,7 +21984,7 @@ var SearchPortal = function (_React$Component) {
 exports.default = SearchPortal;
 
 /***/ }),
-/* 25 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22089,8 +22047,7 @@ var SearchBar = function (_React$Component) {
 exports.default = SearchBar;
 
 /***/ }),
-/* 26 */,
-/* 27 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22106,7 +22063,7 @@ var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _SearchResult = __webpack_require__(28);
+var _SearchResult = __webpack_require__(24);
 
 var _SearchResult2 = _interopRequireDefault(_SearchResult);
 
@@ -22126,13 +22083,13 @@ var SearchResultsList = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (SearchResultsList.__proto__ || Object.getPrototypeOf(SearchResultsList)).call(this, props));
 
-        _this.goToClickedResult = _this.goToClickedResult.bind(_this);
+        _this.resultClicked = _this.resultClicked.bind(_this);
         return _this;
     }
 
     _createClass(SearchResultsList, [{
-        key: 'goToClickedResult',
-        value: function goToClickedResult(result) {
+        key: 'resultClicked',
+        value: function resultClicked(result) {
             this.props.goToClickedResult(result);
         }
     }, {
@@ -22140,14 +22097,15 @@ var SearchResultsList = function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var results = this.props.results.map(function (result) {
-                return _react2.default.createElement(_SearchResult2.default, { result: result, key: result.book + '-' + result.chapter, goToClickedResult: _this2.goToClickedResult });
-            });
-
             return _react2.default.createElement(
                 'div',
                 null,
-                results
+                this.props.results.map(function (result) {
+                    return _react2.default.createElement(_SearchResult2.default, {
+                        result: result,
+                        key: result.book + '-' + result.chapter + '-' + result.verse,
+                        resultClicked: _this2.resultClicked });
+                })
             );
         }
     }]);
@@ -22158,7 +22116,7 @@ var SearchResultsList = function (_React$Component) {
 exports.default = SearchResultsList;
 
 /***/ }),
-/* 28 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22211,7 +22169,9 @@ var SearchResult = function (_React$Component) {
                 result.book,
                 ' - ',
                 result.chapter,
-                ' (',
+                ':',
+                result.verse,
+                '   (',
                 result.volume,
                 ')',
                 _react2.default.createElement(
@@ -22229,7 +22189,7 @@ var SearchResult = function (_React$Component) {
 exports.default = SearchResult;
 
 /***/ }),
-/* 29 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -23234,6 +23194,302 @@ module.exports = Fuse;
 /******/ ]);
 });
 //# sourceMappingURL=fuse.js.map
+
+/***/ }),
+/* 26 */,
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _all_volumes = __webpack_require__(30);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DataCompiler = function () {
+    function DataCompiler() {
+        _classCallCheck(this, DataCompiler);
+
+        this.data = [];
+
+        this.compile();
+    }
+
+    _createClass(DataCompiler, [{
+        key: 'compile',
+        value: function compile() {
+            console.log(_all_volumes.old_testament);
+
+            this.extractVersesFrom(_all_volumes.old_testament);
+        }
+    }, {
+        key: 'extractVersesFrom',
+        value: function extractVersesFrom(volumeData) {
+            var volume = volumeData.name;
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = volumeData.books[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var bookData = _step.value;
+
+
+                    var book = bookData.name;
+
+                    var _iteratorNormalCompletion2 = true;
+                    var _didIteratorError2 = false;
+                    var _iteratorError2 = undefined;
+
+                    try {
+                        for (var _iterator2 = bookData.chapters[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                            var chapterData = _step2.value;
+
+
+                            var chapter = chapterData.number;
+
+                            for (var verse = 1; verse <= chapterData.verses; verse++) {
+
+                                this.data.push({ volume: volume, book: book, chapter: chapter, verse: verse });
+                            } // end verses
+                        } // end chapters
+                    } catch (err) {
+                        _didIteratorError2 = true;
+                        _iteratorError2 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
+                            }
+                        } finally {
+                            if (_didIteratorError2) {
+                                throw _iteratorError2;
+                            }
+                        }
+                    }
+                } // end books
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }]);
+
+    return DataCompiler;
+}();
+
+exports.default = DataCompiler;
+
+/***/ }),
+/* 28 */,
+/* 29 */,
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.old_testament = undefined;
+
+var _old_testament = __webpack_require__(31);
+
+var _old_testament2 = _interopRequireDefault(_old_testament);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.old_testament = _old_testament2.default;
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var old_testament = {
+    name: 'Old Testament',
+    books: [{
+        name: 'Genesis',
+        chapters: [{
+            number: 1,
+            verses: 31
+        }, {
+            number: 2,
+            verses: 25
+        }, {
+            number: 3,
+            verses: 24
+        }, {
+            number: 4,
+            verses: 26
+        }, {
+            number: 5,
+            verses: 32
+        }, {
+            number: 6,
+            verses: 22
+        }, {
+            number: 7,
+            verses: 24
+        }, {
+            number: 8,
+            verses: 22
+        }, {
+            number: 9,
+            verses: 29
+        }, {
+            number: 10,
+            verses: 32
+        }, {
+            number: 11,
+            verses: 32
+        }, {
+            number: 12,
+            verses: 20
+        }, {
+            number: 13,
+            verses: 18
+        }, {
+            number: 14,
+            verses: 24
+        }, {
+            number: 15,
+            verses: 21
+        }, {
+            number: 16,
+            verses: 16
+        }, {
+            number: 17,
+            verses: 27
+        }, {
+            number: 18,
+            verses: 33
+        }, {
+            number: 19,
+            verses: 38
+        }, {
+            number: 20,
+            verses: 18
+        }, {
+            number: 21,
+            verses: 34
+        }, {
+            number: 22,
+            verses: 24
+        }, {
+            number: 23,
+            verses: 20
+        }, {
+            number: 24,
+            verses: 67
+        }, {
+            number: 25,
+            verses: 34
+        }, {
+            number: 26,
+            verses: 35
+        }, {
+            number: 27,
+            verses: 46
+        }, {
+            number: 28,
+            verses: 22
+        }, {
+            number: 29,
+            verses: 35
+        }, {
+            number: 30,
+            verses: 43
+        }, {
+            number: 31,
+            verses: 55
+        }, {
+            number: 32,
+            verses: 32
+        }, {
+            number: 33,
+            verses: 20
+        }, {
+            number: 34,
+            verses: 31
+        }, {
+            number: 35,
+            verses: 40
+        }, {
+            number: 36,
+            verses: 40
+        }, {
+            number: 37,
+            verses: 40
+        }, {
+            number: 38,
+            verses: 40
+        }, {
+            number: 39,
+            verses: 40
+        }, {
+            number: 40,
+            verses: 23
+        }, {
+            number: 41,
+            verses: 57
+        }, {
+            number: 42,
+            verses: 38
+        }, {
+            number: 43,
+            verses: 34
+        }, {
+            number: 44,
+            verses: 34
+        }, {
+            number: 45,
+            verses: 28
+        }, {
+            number: 46,
+            verses: 34
+        }, {
+            number: 47,
+            verses: 31
+        }, {
+            number: 48,
+            verses: 22
+        }, {
+            number: 49,
+            verses: 33
+        }, {
+            number: 50,
+            verses: 26
+        }]
+    }]
+};
+
+exports.default = old_testament;
 
 /***/ })
 /******/ ]);

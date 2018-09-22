@@ -7,23 +7,24 @@ class SearchResultsList extends React.Component
     {
         super(props);
 
-        this.goToClickedResult = this.goToClickedResult.bind(this);
+        this.resultClicked = this.resultClicked.bind(this);
     }
 
-    goToClickedResult(result)
+    resultClicked(result)
     {
         this.props.goToClickedResult(result);
     }
 
     render()
     {
-        const results = this.props.results.map(result => {
-            return <SearchResult result={result} key={`${result.book}-${result.chapter}`} goToClickedResult={this.goToClickedResult} />;
-        });
-
         return (
             <div>
-                {results}
+                {this.props.results.map(result => {
+                    return <SearchResult 
+                                result={result} 
+                                key={`${result.book}-${result.chapter}-${result.verse}`} 
+                                resultClicked={this.resultClicked} />;
+                })}
             </div>
         );
     }

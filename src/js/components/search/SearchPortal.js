@@ -1,6 +1,7 @@
 import React from 'react';
 import SearchBar from './SearchBar';
 import SearchResultsList from './SearchResultsList';
+import DataCompiler from './data/DataCompiler';
 import Fuse from 'fuse.js';
 
 class SearchPortal extends React.Component
@@ -15,74 +16,15 @@ class SearchPortal extends React.Component
             searchResults: []
         };
 
+        this.searchUpdateInterval = null;
+
         this.onSearchUpdate = this.onSearchUpdate.bind(this);
         this.goToClickedResult = this.goToClickedResult.bind(this);
     }
 
     componentDidMount()
     {
-        const scriptureData = [
-            {
-                chapter: 1,
-                heading: "My first chapter heading",
-                book: "John",
-                volume: "New Testament"
-            },
-            {
-                chapter: 2,
-                heading: "My second chapter heading",
-                book: "John",
-                volume: "New Testament"
-            },
-            {
-                chapter: 3,
-                heading: "My third chapter heading",
-                book: "John",
-                volume: "New Testament"
-            },
-            {
-                chapter: 4,
-                heading: "My fourth chapter heading",
-                book: "John",
-                volume: "New Testament"
-            },
-            {
-                chapter: 5,
-                heading: "My fifth chapter heading",
-                book: "John",
-                volume: "New Testament"
-            },
-            {
-                chapter: 1,
-                heading: "My first chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            },
-            {
-                chapter: 2,
-                heading: "My second chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            },
-            {
-                chapter: 3,
-                heading: "My third chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            },
-            {
-                chapter: 4,
-                heading: "My fourth chapter heading",
-                book: "Genesis",
-                volume: "Old Testament"
-            },
-            {
-                chapter: 10,
-                heading: "My tenth chapter heading",
-                book: "Nephi",
-                volume: "Book of Mormon"
-            }
-        ];
+        const scriptureData = (new DataCompiler).data;
 
         this.setState({ scriptureData });
 
@@ -110,11 +52,14 @@ class SearchPortal extends React.Component
 
     onSearchUpdate(searchValue)
     {
-        const results = this.getResults(searchValue);
+        this.setState({ searchValue });
+        
+        this.searchUpdateInterval = setTimeout(() => {
 
-        console.log(results);
+            const searchResults = this.getResults(searchValue);
+            this.setState({ searchResults });
 
-        this.setState({ searchValue, searchResults: results });
+        }, 1000);
     }
 
     getResults(searchValue)
@@ -133,11 +78,12 @@ class SearchPortal extends React.Component
 
     buildLibraryLink(result)
     {
-        const volumeAlias = 'bofm';
-        const bookAlias = '1-ne';
+        const volumeAlias = result.volume || 'bofm';
+        const bookAlias = result.book || '1-ne';
         const chapter = result.chapter || 1;
+        const verse = result.verse || 1;
 
-        return `gospellibrary://content/scriptures/${volumeAlias}/${bookAlias}/${chapter}.1?lang=eng`;
+        return `gospellibrary://content/scriptures/${volumeAlias}/${bookAlias}/${chapter}.${verse}?lang=eng`;
     }
 
     render()

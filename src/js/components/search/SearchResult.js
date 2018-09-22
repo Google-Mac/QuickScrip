@@ -20,7 +20,7 @@ class SearchResult extends React.Component
 
         return (
             <div>
-                {result.book} - {result.chapter} ({result.volume})
+                {result.book} - {result.chapter}:{result.verse}   ({result.volume})
                 <button onClick={this.onResultClicked}>Open It!</button>
             </div>
         );
